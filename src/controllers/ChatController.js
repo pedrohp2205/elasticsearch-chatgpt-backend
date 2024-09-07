@@ -18,8 +18,6 @@ class ChatController {
             return response.status(400).send('O arquivo enviado deve ser um pdf.');
         }
 
-        
-
         const readFile = fs.readFileSync(filePath);
         const data = await pdfParse(readFile);
 
