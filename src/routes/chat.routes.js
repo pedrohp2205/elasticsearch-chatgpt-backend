@@ -13,6 +13,8 @@ const upload = multer({
 })
 
 chatRoutes.post("/",upload.single('file'),chatController.createDecision);
+chatRoutes.get("/search",chatController.searchDecision);
+
 
 
 

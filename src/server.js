@@ -4,7 +4,7 @@ const AppError = require("./utils/AppError.js")
 const express = require("express");
 
 const cors = require("cors")
-
+const elastic = require("./service/elasticsearch.js")
 const routes = require("./routes/index.js");
 
 
@@ -15,7 +15,7 @@ app.use(express.json());
 
 app.use(routes);
 
-
+elastic.createIndex().then()
 
 app.use((error, request, response, next) => {
     if(error instanceof AppError) {

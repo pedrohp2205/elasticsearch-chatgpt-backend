@@ -2,6 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
 const deleteFolder = require("../utils/DeleteFolder")
+const elastic = require("../service/elasticsearch")
+const { v4: uuidv4 } = require("uuid")
+
 
 class ChatController {
 
@@ -23,9 +26,20 @@ class ChatController {
 
         deleteFolder(filePath)
 
+        const uuid = uuidv4()
 
+        elastic.createDocument(uuid, {content: data.text} )
         
-        response.json(data.text);
+        response.json(`Criado documento com o ID: ${uuid}`);
+    };
+
+    async searchDecision(request, response) {
+        const { contentQuery } = request.query
+
+        const decisions = await elastic.searchDocument(contentQuery)
+
+
+        return response.json(decisions.hits.hits)
     }
 }
 
