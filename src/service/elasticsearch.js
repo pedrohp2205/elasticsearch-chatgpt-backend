@@ -32,6 +32,13 @@ class ElasticSearch {
 
         })
     }
+
+    async deleteDocument(id) {
+        await this.client.delete({
+            index: 'tribunal-decisoes-judiciais-tre',
+            id: id,
+          })
+    }
 }
 
 

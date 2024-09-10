@@ -1,46 +1,30 @@
-const path = require('path');
-const fs = require('fs');
-const pdfParse = require('pdf-parse');
-const deleteFolder = require("../utils/DeleteFolder")
 const elastic = require("../service/elasticsearch")
-const { v4: uuidv4 } = require("uuid")
-
+const openAi = require("../service/openai")
 
 class ChatController {
-
-    async createDecision(request, response) {
-
-        if (!request.file) {
-            return response.status(400).send('Nenhum arquivo foi enviado.');
-        }
-
-        const filePath = path.resolve(__dirname, "..","uploads", request.file.filename);
-
-        if (request.file.mimetype != "application/pdf") {
-            deleteFolder(filePath)
-            return response.status(400).send('O arquivo enviado deve ser um pdf.');
-        }
-
-        const readFile = fs.readFileSync(filePath);
-        const data = await pdfParse(readFile);
-
-        deleteFolder(filePath)
-
-        const uuid = uuidv4()
-
-        elastic.createDocument(uuid, {content: data.text} )
+    async index(request, response) {
+        const prompt = request.body.message
         
-        response.json(`Criado documento com o ID: ${uuid}`);
-    };
+        const context = await elastic.searchDocument(prompt)
 
-    async searchDecision(request, response) {
-        const { contentQuery } = request.query
+        let answer
+        try {
+            answer = await openAi.chat.completions.create({
+                model: "gpt-4o-mini", 
+                messages: [
+                  { role: "system", content: "Você é um assistente que responde baseado em dados do Elasticsearch." },
+                  { role: "user", content: `Aqui estão os dados do Elasticsearch: \n${context.hits.hits[0]._source}` },
+                  { role: "user", content: prompt }
+                ],
+                max_tokens: 1500, 
+            });
+        }catch(error){
+            return response.json(`Houve um erro com a API da OpenAI \n ${error}`)
+        }
 
-        const decisions = await elastic.searchDocument(contentQuery)
 
-
-        return response.json(decisions.hits.hits)
+        return response.json(answer)
     }
 }
 
-module.exports = ChatController;
+module.exports = ChatController
