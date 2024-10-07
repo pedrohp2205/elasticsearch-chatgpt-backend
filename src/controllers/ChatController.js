@@ -1,20 +1,23 @@
 const elastic = require("../service/elasticsearch")
 const openAi = require("../service/openai")
 
+
 class ChatController {
     async index(request, response) {
         const prompt = request.body.message
         
         const context = await elastic.searchDocument(prompt)
 
+
         let answer
         try {
             answer = await openAi.chat.completions.create({
-                model: "gpt-4o-mini", 
+                model: "gpt-3.5-turbo",
                 messages: [
-                  { role: "system", content: "Você é um assistente que responde baseado em dados do Elasticsearch." },
-                  { role: "user", content: `Aqui estão os dados do Elasticsearch: \n${context.hits.hits[0]._source}` },
-                  { role: "user", content: prompt }
+                    { role: "system", content: "Você é um assistente que responde baseado em dados do Elasticsearch." },
+                    { role: "user", content: `Aqui está a pergunta do usuário: ${prompt}` },
+                    { role: "system", content: `Aqui estão os dados do Elasticsearch: \n${context.hits.hits[0]._source.content}` },
+                    { role: "user", content: prompt }
                 ],
                 max_tokens: 1500, 
             });
@@ -23,7 +26,7 @@ class ChatController {
         }
 
 
-        return response.json(answer)
+        return response.json(answer.choices[0].message.content)
     }
 }
 
