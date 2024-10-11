@@ -51,8 +51,22 @@ class DecisionsController {
             content: data.text
         } )
         
-        response.json(`Criado documento com o ID: ${uuid} e número de processo ${processNumber[0]}`);
+        return response.json(`Criado documento com o ID: ${uuid} e número de processo ${processNumber[0]}`);
     };
+
+    async deleteDecision(request, response) {
+        const  { decisionId } = request.query
+
+        const docExists = await elastic.searchDocument(decisionId.trim())
+
+        if(docExists.hits.hits.length === 0) {
+            return response.json(`Documento com ID: ${decisionId} não foi encontrado.`)
+        }
+        
+        await elastic.deleteDocument(decisionId.trim())
+
+        return response.json(`Excluído documento com o ID: ${decisionId}`)
+    }
 
     async searchDecision(request, response) {
         const { contentQuery } = request.query
