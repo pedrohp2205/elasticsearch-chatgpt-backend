@@ -7,7 +7,7 @@ const chatRoutes = Router();
 
 const chatController = new ChatController();
 
-chatRoutes.get("/",chatController.index);
+chatRoutes.post("/",chatController.index);
 
 
 

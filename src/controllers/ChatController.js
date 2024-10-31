@@ -6,6 +6,8 @@ class ChatController {
     async index(request, response) {
         const prompt = request.body.message
         
+
+        console.log(prompt)
         const context = await elastic.searchDocument(prompt)
 
 
