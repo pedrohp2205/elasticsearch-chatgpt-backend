@@ -16,7 +16,7 @@ class DecisionsController {
 
         const filePath = path.resolve(__dirname, "..","uploads", request.file.filename);
 
-        if (request.file.mimetype != "application/pdf") {
+        if (request.file.mimetype !== "application/pdf") {
             deleteFolder(filePath)
             return response.status(400).send('O arquivo enviado deve ser um pdf.');
         }
@@ -24,7 +24,7 @@ class DecisionsController {
         const readFile = fs.readFileSync(filePath);
         const data = await pdfParse(readFile);
 
-        const processNumberTemplate = /PROCESSO[^\d]*(\d{6}\/\d{4})/g;
+        const processNumberTemplate = /PROCESSO\D*(\d{6}\/\d{4})/g;
         const matchProcessNumber = data.text.match(processNumberTemplate);
 
         let processNumber 
@@ -46,13 +46,27 @@ class DecisionsController {
 
         const uuid = uuidv4()
 
-        elastic.createDocument(uuid, {
+        await elastic.createDocument(uuid, {
             processNumber: processNumber[0],
             content: data.text
-        } )
+        })
         
-        response.json(`Criado documento com o ID: ${uuid} e número de processo ${processNumber[0]}`);
+        return response.json(`Criado documento com o ID: ${uuid} e número de processo ${processNumber[0]}`);
     };
+
+    async deleteDecision(request, response) {
+        const  { decisionId } = request.query
+
+        const docExists = await elastic.searchDocument(decisionId.trim())
+
+        if(docExists.hits.hits.length === 0) {
+            return response.json(`Documento com ID: ${decisionId} não foi encontrado.`)
+        }
+        
+        await elastic.deleteDocument(decisionId.trim())
+
+        return response.json(`Excluído documento com o ID: ${decisionId}`)
+    }
 
     async searchDecision(request, response) {
         const { contentQuery } = request.query

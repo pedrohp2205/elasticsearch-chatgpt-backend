@@ -15,6 +15,7 @@ const upload = multer({
 
 decisionsRoutes.post("/",upload.single('file'),decisionsController.createDecision);
 decisionsRoutes.get("/",decisionsController.searchDecision);
+decisionsRoutes.delete("/",decisionsController.deleteDecision);
 
 
 
