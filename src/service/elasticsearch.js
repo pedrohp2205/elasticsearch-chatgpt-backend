@@ -21,7 +21,7 @@ class ElasticSearch {
         })
     }
 
-    async searchDocument(query) {
+    async searchDocumentSimple(query) {
         return await this.client.search({
             index: "tribunal-decisoes-judiciais-tre",
             query: {
@@ -32,12 +32,55 @@ class ElasticSearch {
 
         })
     }
+    
+
+    async searchDocument(query, size = 5) {
+        return await this.client.search({
+            index: "tribunal-decisoes-judiciais-tre",
+            body: {
+                query: query,
+                highlight: {
+                    fields: {
+                        content: {
+                            fragment_size: 300,
+                            number_of_fragments: 20
+                        }
+                    }
+                },
+                size: size
+            }
+        });
+    }
+
+
+    async checkIfDocumentExists(processNumber) {
+        const result = await this.client.search({
+            index: 'tribunal-decisoes-judiciais-tre',
+            size: 1,
+            query: {
+              bool: {
+                must: [{
+                    term: {
+                        "processNumber.keyword": processNumber
+                    }
+                }]
+              }
+            }
+        })
+
+        if (result.hits.total.value === 0) {
+            return false;
+        }
+        
+        return result.hits.hits[0]._id;
+        // return result.hits.total.value > 0;
+    }
 
     async deleteDocument(id) {
-        await this.client.delete({
+        return await this.client.delete({
             index: 'tribunal-decisoes-judiciais-tre',
-            id: id,
-          })
+            id: id
+        })
     }
 }
 

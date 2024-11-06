@@ -57,13 +57,15 @@ class DecisionsController {
     async deleteDecision(request, response) {
         const  { decisionId } = request.query
 
-        const docExists = await elastic.searchDocument(decisionId.trim())
 
-        if(docExists.hits.hits.length === 0) {
-            return response.json(`Documento com ID: ${decisionId} não foi encontrado.`)
+        const documentExists = await elastic.checkIfDocumentExists(decisionId)
+
+        
+        if(!documentExists){
+            return response.status(404).json(`Documento com ID ${decisionId} não encontrado.`);
         }
         
-        await elastic.deleteDocument(decisionId.trim())
+        await elastic.deleteDocument(documentExists)      
 
         return response.json(`Excluído documento com o ID: ${decisionId}`)
     }
@@ -71,7 +73,7 @@ class DecisionsController {
     async searchDecision(request, response) {
         const { contentQuery } = request.query
 
-        const decisions = await elastic.searchDocument(contentQuery)
+        const decisions = await elastic.searchDocumentSimple(contentQuery)
 
 
         return response.json(decisions.hits.hits)
