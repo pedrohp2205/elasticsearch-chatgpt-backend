@@ -22,7 +22,7 @@ class ChatController {
                     // { role: "system", content: `Aqui estão os dados do Elasticsearch: \n${context.hits.hits[0]._source.content}` },
                     { role: "user", content: prompt }
                 ],
-                max_tokens: 1000, 
+                max_tokens: 300, 
             });
         }catch(error){
             return response.json(`Houve um erro com a API da OpenAI \n ${error}`)
