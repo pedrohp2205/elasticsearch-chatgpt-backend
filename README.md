@@ -19,6 +19,8 @@ Node.js é um ambiente de execução que permite rodar JavaScript no servidor, f
 
 **PDF-Parse:** Biblioteca usada para extrair texto e informações de arquivos PDF no Node.js.
 
+**Postgres:** Banco de dados relacional.
+
 
 
 
@@ -26,6 +28,7 @@ Node.js é um ambiente de execução que permite rodar JavaScript no servidor, f
 
 - Rotas para CRUD Completo do Elastic.
 - Rota para chat.
+- Sistema de Login
 
 
 
@@ -93,11 +96,25 @@ elasticsearch-chatgpt/
 Para rodar esse projeto, você vai precisar adicionar as seguintes variáveis de ambiente no seu .env
 
 `OPENAI_APIKEY`
+`POSTGRES_URL`
 
 
 
 
 ## Documentação da API
+
+#### Cria uma Usuário
+
+```http
+  POST /users
+```
+
+| Parâmetro   | Tipo       | Descrição                           |
+| :---------- | :--------- | :---------------------------------- |
+| `nome` | `string` | **Obrigatório**. |
+
+
+
 
 #### Cria uma decisão
 
