@@ -59,8 +59,14 @@ Node.js é um ambiente de execução que permite rodar JavaScript no servidor, f
    ```bash
    docker compose up
    ```
+   
+4. Rode as Migrations:
 
-4. Inicialize a API:
+   ```bash
+   npx knex migrate:latest
+   ```
+
+5. Inicialize a API:
 
    ```bash
    npm run dev
@@ -69,13 +75,18 @@ Node.js é um ambiente de execução que permite rodar JavaScript no servidor, f
 
 6. Acesse o elastic em [http://127.0.0.1:5601](http://127.0.0.1:5601).
 
+7. Acesse o postgres em [localhost:5432]
+
 ## Estrutura do Projeto
 
 ```plaintext
 elasticsearch-chatgpt/
 │
 ├── src/               # Aplicação principal da plataforma
+│   ├── configs/            # Configuração do padrão do Token JWT
 │   ├── controllers/        # Recebimento das rotas
+│   ├── database/           # Conexão com o Banco de Dados
+│   ├── middlewares/        # Middleware de Autenticação
 │   ├── routes/             # Configuraçao das Rotas
 │   ├── service/            # CRUD do Elastic e Integração com a OpenAI
 │   ├── uploads/            # Recebimento temporário dos arquivos PDF
@@ -86,6 +97,7 @@ elasticsearch-chatgpt/
 │
 ├── package.json            # Dependências do projeto
 ├── docker-compose.yaml     # Imagem Docker
+├── knexfile.js             # Configuração do Query Builder 
 └── README.md               # Documentação do projeto
 ```
 
@@ -96,7 +108,7 @@ elasticsearch-chatgpt/
 Para rodar esse projeto, você vai precisar adicionar as seguintes variáveis de ambiente no seu .env
 
 `OPENAI_APIKEY`
-`POSTGRES_URL`
+`PG_CONNECTION_STRING`
 
 
 
@@ -111,9 +123,35 @@ Para rodar esse projeto, você vai precisar adicionar as seguintes variáveis de
 
 | Parâmetro   | Tipo       | Descrição                           |
 | :---------- | :--------- | :---------------------------------- |
-| `nome` | `string` | **Obrigatório**. |
+| `name` | `string` | **Obrigatório**. |
+| `email` | `string` | **Obrigatório**. |
+| `password` | `string` | **Obrigatório**. |
 
 
+#### Atualiza um Usuário
+
+```http
+  PUT /users
+```
+
+| Parâmetro   | Tipo       | Descrição                           |
+| :---------- | :--------- | :---------------------------------- |
+| `name` | `string` | **Opcional**. |
+| `email` | `string` | **Opcional**. |
+| `password` | `string` | **Obrigatório**. |
+| `old_password` | `string` | **Obrigatório**. |
+
+
+#### Cria uma sessão
+
+```http
+  POST /sessions
+```
+
+| Parâmetro   | Tipo       | Descrição                           |
+| :---------- | :--------- | :---------------------------------- |
+| `email` | `string` | **Obrigatório**. |
+| `password` | `string` | **Obrigatório**. |
 
 
 #### Cria uma decisão
